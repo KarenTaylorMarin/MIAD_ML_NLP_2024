@@ -12,36 +12,50 @@ CORS(app)  # Enable CORS for all routes and origins
 api = Api(
     app, 
     version='1.0', 
-    title='Phishing Prediction API',
-    description='Phishing Prediction API')
+    title='API Prediccion Precio Vehiculos',
+    description='API Prediccion Precio Vehiculos')
 
-ns = api.namespace('predict', 
-     description='Phishing Classifier')
+ns = api.namespace('Predicción', 
+     description='Precio Vehiculos')
    
 parser = api.parser()
-
 parser.add_argument(
-    'URL', 
-    type=str, 
-    required=True, 
-    help='URL to be analyzed', 
-    location='args')
+    'Year', type=int, required=True, help='Year of the car', location='args')
+parser.add_argument(
+    'Mileage', type=int, required=True, help='Mileage of the car', location='args')
+
+columnas_modelo = True
+
+if columnas_modelo:
+    for col in X_train.columns:
+        if col.startswith('M_'):
+            parser.add_argument(col, type=float, required=False, help=f'{col} value', location='args')
 
 resource_fields = api.model('Resource', {
-    'result': fields.String,
+    'Price': fields.Float,
 })
 
 @ns.route('/')
-class PhishingApi(Resource):
+class PricePrediction(Resource):
 
     @api.doc(parser=parser)
     @api.marshal_with(resource_fields)
     def get(self):
         args = parser.parse_args()
-        
+        year = args['Year']
+        mileage = args['Mileage']
+        modelo_diligenciado = None
+
+        for col in X_train.columns:
+            if col.startswith('M_') and args.get(col) is not None:
+                modelo_diligenciado = args[col]
+                break
+
+        total_columnas = [[year, mileage, modelo_diligenciado]]
+        pred_precio = grid_search_xgb.predict(total_columnas)
+
         return {
-         "result": predict_proba(args['URL'])
-        }, 200
+         "Precio": float(pred_precio[0])}, 200
     
     
 if __name__ == '__main__':
