@@ -9,11 +9,7 @@ from m09_model_deployment import predict_proba
 from flask_cors import CORS
 
 dataTraining = pd.read_csv('https://raw.githubusercontent.com/davidzarruk/MIAD_ML_NLP_2023/main/datasets/dataTrain_carListings.zip')
-dataTesting = pd.read_csv('https://raw.githubusercontent.com/davidzarruk/MIAD_ML_NLP_2023/main/datasets/dataTest_carListings.zip', index_col=0)
-dataTraining = dataTraining.drop(['Make', 'State'], axis=1)
-dataTraining = dataTraining.join(pd.get_dummies(dataTraining['Model'], prefix='M'))
-dataTraining = dataTraining.drop(['Model'], axis=1)
-X_train = dataTraining.drop(['Price'], axis=1)
+X_train = dataTraining.drop(['Make', 'State', 'Model', 'Price'], axis=1).join(pd.get_dummies(dataTraining['Model'], prefix='M'))
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes and origins
