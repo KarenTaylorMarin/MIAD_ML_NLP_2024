@@ -12,37 +12,44 @@ CORS(app)  # Enable CORS for all routes and origins
 api = Api(
     app, 
     version='1.0', 
-    title='API Prediccion Precio Vehiculos',
-    description='API Prediccion Precio Vehiculos')
+    title='Movie Genres Prediction API',
+    description='Movie Genres Prediction API')
 
 ns = api.namespace('Predicción', 
-     description='Precio Vehiculos')
+     description='Movie Classifier')
 
-# Definición argumentos o parámetros de la API
 parser = api.parser()
 parser.add_argument(
-    'Year', type=int, required=True, help='Year of the car', location='args')
+    'year', 
+    type=int, 
+    required=True, 
+    help='Año de estreno de la pelicula', 
+    location='args')
 parser.add_argument(
-    'Mileage', type=int, required=True, help='Mileage of the car', location='args')
+    'title', 
+    type=str, 
+    required=True, 
+    help='Año de estreno de la pelicula', 
+    location='args')
 parser.add_argument(
-    'Model', type=str, required=True, help='Model of the car', location='args')
-parser.add_argument(
-    'State', type=str, required=True, help='State of the car', location='args')
-
-resource_fields = api.model('Resource', {
-    'Price': fields.Float,
-})
+    'plot', 
+    type=str, 
+    required=True, 
+    help='Año de estreno de la pelicula', 
+    location='args')
 
 @ns.route('/')
-class PricePrediction(Resource):
+class MoviePrediction(Resource):
 
     @api.doc(parser=parser)
     @api.marshal_with(resource_fields)
     def get(self):
         args = parser.parse_args()
+
+        prediction = modelo.predict(args['year', 'title', 'plot'])
         
         return {
-         "Price": mejor_modelo.predict(args['Year', 'Mileage', 'Model', 'State'])
+         "Pelicula": prediction
         }, 200
     
     
