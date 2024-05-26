@@ -1,13 +1,12 @@
 #!/usr/bin/python
 
 from flask import Flask
-from flask_restx import Api, Resource, fields
-import joblib
-from m09_model_deployment import predict_proba
+from flask_restx import Api, Resource, fields, reqparse
 from flask_cors import CORS
+import joblib
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes and origins
+CORS(app)  # Habilitar CORS para todas las rutas y orígenes
 
 api = Api(
     app, 
@@ -15,28 +14,33 @@ api = Api(
     title='Movie Genres Prediction API',
     description='Movie Genres Prediction API')
 
-ns = api.namespace('Predicción', 
-     description='Movie Classifier')
+ns = api.namespace('Predicción', description='Movie Classifier')
 
-parser = api.parser()
+# Definir el analizador de argumentos
+parser = reqparse.RequestParser()
 parser.add_argument(
     'year', 
     type=int, 
     required=True, 
-    help='Año de estreno de la pelicula', 
+    help='Año de estreno de la película', 
     location='args')
 parser.add_argument(
     'title', 
     type=str, 
     required=True, 
-    help='Año de estreno de la pelicula', 
+    help='Título de la película', 
     location='args')
 parser.add_argument(
     'plot', 
     type=str, 
     required=True, 
-    help='Año de estreno de la pelicula', 
+    help='Argumento de la película', 
     location='args')
+
+# Definir los campos de respuesta
+resource_fields = api.model('Resource', {
+    'Price': fields.Float,
+})
 
 @ns.route('/')
 class MoviePrediction(Resource):
@@ -45,13 +49,13 @@ class MoviePrediction(Resource):
     @api.marshal_with(resource_fields)
     def get(self):
         args = parser.parse_args()
-
-        prediction = modelo.predict(args['year', 'title', 'plot'])
+        
+        # Lógica para predecir el precio
+        prediction = mejor_modelo.predict(args['year', 'title', 'plot'])
         
         return {
-         "Pelicula": prediction
+            "Price": prediction
         }, 200
-    
     
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5000)
